@@ -1,12 +1,20 @@
 const express = require("express")
 const app = express()
-const users =  require("../users.json")
+const users =  "./users.json"
+const fs = require("fs")
 // middleware quon a crée pour savoir si l'utilisateur est connecter 
 // et autoriser l'accès au route que nous avons defini
 const { verifyUser } = require("../middlewares/auth")
 
 app.get("/admin", verifyUser, (req, res) => {
-  res.json(users)
+  fs.readFile (users, (err , data) => {
+    if (err) {
+      return console.log(err);
+    }
+    let users = JSON.parse(data)
+
+    res.json(users)
+  })
 })
 
 module.exports = app
