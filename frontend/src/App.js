@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'
 import Login from '../src/pages/Login'
 import Admin from '../src/pages/Admin'
 import Signup from './pages/Signup';
+
 const App = () => {
   return (
     <BrowserRouter>
