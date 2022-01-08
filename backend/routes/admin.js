@@ -9,11 +9,13 @@ const { verifyUser } = require("../middlewares/auth")
 app.get("/admin", verifyUser, (req, res) => {
   fs.readFile (users, (err , data) => {
     if (err) {
-      return console.log(err);
-    }
-    let users = JSON.parse(data)
+      console.log(err);
+    } else {
+      let users = JSON.parse(data)
+  
+      res.json(users)
 
-    res.json(users)
+    }
   })
 })
 
