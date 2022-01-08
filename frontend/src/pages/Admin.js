@@ -1,5 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import Nav from '../components/Nav'
+import { Link } from 'react-router-dom';
+
 const Admin = () => {
     const [users , setUsers ] = useState([])
 
@@ -10,7 +12,7 @@ const Admin = () => {
          .then(response => response.json())
          .then(data => setUsers(data))
     },[])
-    
+    console.log(users);
     return (
         <div>
             <h1>admin</h1>
@@ -18,11 +20,12 @@ const Admin = () => {
             <div>
 
             {users.map( user => 
-            <div class="card border-primary mb-3" style={{maxwidth: "18rem"}}>
-                <div class="card-header"> username : {user.username}</div>
-                <div class="card-body text-primary">
-                    <h5 class="card-title">e-mail : {user.email}</h5>
-                    <p class="card-text">age : {user.age}</p>
+            <div key={user.username} className="card border-primary mb-3" style={{maxwidth: "18rem"}}>
+                <Link to={`/user/${user.id}`} ><div><img className='img-fluid' src={user.profilepicture} alt= " profile"/></div></Link>
+                <div className="card-header"> username : {user.username}</div>
+                <div className="card-body text-primary">
+                    <h5 className="card-title">e-mail : {user.email}</h5>
+                    <p className="card-text">age : {user.age}</p>
                 </div>
             </div>
             )}
@@ -30,10 +33,6 @@ const Admin = () => {
         </div>
     );
 };
-{/* <div>  
-                <p> username : {user.username}</p>
-                <p> e-mail : {user.email}</p>
-                <p> age : {user.age}</p>
-            </div> */}
+
 
 export default Admin;

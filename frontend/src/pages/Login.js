@@ -64,7 +64,7 @@ const Login = () => {
                         </form>
                     </div>
                     <div className='col-6'>
-                        <img className='img-fluid' src="https://adrien.cambien.net/wp-content/uploads/2020/03/logo-mon-quotidien-freelance-saison-3-n%C2%B027-1200x675.jpg" alt = "image de dev" />
+                        <img className='img-fluid' src="https://adrien.cambien.net/wp-content/uploads/2020/03/logo-mon-quotidien-freelance-saison-3-n%C2%B027-1200x675.jpg" alt = " des dev" />
                     </div>
                 </div>
             </div>

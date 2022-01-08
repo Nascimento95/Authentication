@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFormik } from 'formik'
+import { useFormik, } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import * as Yup from 'yup';
@@ -9,6 +9,7 @@ import { useState } from 'react/cjs/react.development';
 const Signup = () => {
 
     const [view , setView] = useState(true)
+    // const [file , setFile] = useState([])
     const navigate = useNavigate()  
 
     const SignupSchema = Yup.object().shape({
@@ -26,11 +27,12 @@ const Signup = () => {
             email : "",
             password : "",
             passwordConfirmation : "",
+            profilePicture : "",
             age :"",
         },
-        onSubmit: values => {
+        onSubmit: async values => {
             console.log(JSON.stringify(values))
-            fetch("http://localhost:5000/auth/signup",{
+            const signup = await fetch("http://localhost:5000/auth/signup",{
                 credentials: 'include',
                 method : "post" ,
                 headers: {
@@ -38,29 +40,71 @@ const Signup = () => {
                 },
                 body: JSON.stringify(values)
             })
-                .then(response => response.json())
-                .then(result =>{
-                    console.log(result)
-                    
-                    fetch("http://localhost:5000/auth/login",{
-                        credentials: 'include',
-                        method : "post" ,
-                        headers: {
-                            "Content-type" : "application/json"
-                        },
-                        body: JSON.stringify({
-                            username : result.username,
-                            password : result.password
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(result => 
-                        console.log(result),
-                        navigate("/admin")
-                    )
+            const data = await signup.json()
+            const formdata = new FormData()
+            formdata.append("file", values.profilePicture, values.profilePicture.name)
+            const pushFile = await fetch(`http://localhost:5000/file/${data.id}`, {
+                method: "post",
+                body: formdata
+            })
+            const response = await pushFile.json()
+            console.log(response)
+            const login = await fetch("http://localhost:5000/auth/login",{
+                credentials: 'include',
+                method : "post" ,
+                headers: {
+                    "Content-type" : "application/json"
+                },
+                body: JSON.stringify({
+                    username : data.username,
+                    password : data.password
                 })
-                
-                
+            })
+            const responseLogin = await login.json()
+            navigate("/admin")
+            console.log(responseLogin);
+            // fetch("http://localhost:5000/auth/signup",{
+            //     credentials: 'include',
+            //     method : "post" ,
+            //     headers: {
+            //         "Content-type" : "application/json"
+            //     },
+            //     body: JSON.stringify(values)
+            // })
+            //     .then(response => response.json())
+            //     .then(result =>{
+            //         console.log(result)
+                    
+            //         // result.profilePicture.split('').splice(12,28).join("")
+            //         // console.log(result,"mes result du fetch");
+            //         // on a besoin de c'est deux ligne de code pour envoyer un fichier
+            //         // 1 argument la route defini dans le back le 2 l'object avec la clef 
+            //         // et la 3 
+            //         const formdata = new FormData()
+            //         formdata.append("file", values.profilePicture, values.profilePicture.name)
+
+            //         fetch(`http://localhost:5000/file/${result.id}`, {
+            //         method: "post",
+            //         body: formdata
+            //         })
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             console.log(data)
+            //             fetch("http://localhost:5000/auth/login",{
+            //             credentials: 'include',
+            //             method : "post" ,
+            //             headers: {
+            //                 "Content-type" : "application/json"
+            //             },
+            //             body: JSON.stringify({
+            //                 username : result.username,
+            //                 password : result.password
+            //             })
+            //         })
+            //         .then(response => response.json())
+            //         .then(result => console.log(result))
+            //         })
+            //     })     
         },
         validateOnChange: false,
         validationSchema: Yup.object().shape({
@@ -72,15 +116,21 @@ const Signup = () => {
             .required('Password confirmation is required!'),
         })
     })
-    console.log(formik.errors)
-    const viewPassword = () => {
-        console.log("sa marche");
-        // if(view === true) {
-        //     return "password"
-        // } else {
-        //     return "text"
-        // }
+    
+    const handleFieldChange = (e) => {
+        // console.log(e.target.files[0]);
+        formik.setFieldValue('profilePicture',e.target.files[0])
     }
+
+    // console.log(formik)
+    const viewPassword = () => {
+        if (view === true){
+            setView(false)
+        } else {
+            setView(true)
+        }
+    }
+    // console.log("value=>",formik.values)
     return (
         <div>
         <h1 className='text-center'>Create Account</h1>
@@ -119,10 +169,12 @@ const Signup = () => {
                             <br/>
                         {/* <label>password</label> */}
                             <input
+                                style={{backgroundImage:`url(https://img.icons8.com/material-rounded/24/000000/ophthalmology.png)`,backgroundRepeat:"no-repeat",backgroundPosition:"right", }}
+                                onClick={viewPassword}
                                 className="mt-2"
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={view === true ? "password" : "text"}
                                 onChange={formik.handleChange}
                                 value={formik.values.password}
                                 placeholder='Password'
@@ -130,8 +182,7 @@ const Signup = () => {
                             <br/>
                             {/* <label>password Confirmation</label> */}
                             <input
-                                onClick={viewPassword}
-                                style={{backgroundImage:`url(https://img.icons8.com/material-rounded/24/000000/ophthalmology.png)`,backgroundRepeat:"no-repeat",backgroundPosition:"right", }}
+                                // style={{backgroundImage:`url(https://img.icons8.com/material-rounded/24/000000/ophthalmology.png)`,backgroundRepeat:"no-repeat",backgroundPosition:"right", }}
                                 className="mt-2"
                                 id="passwordConfirmation"
                                 name="passwordConfirmation"
@@ -150,12 +201,22 @@ const Signup = () => {
                                 onChange={formik.handleChange}
                                 value={formik.values.age}
                                 placeholder='Age'
-                                />
+                            />
+                            <br/>
+                            <input
+                                className="mt-2"
+                                id="profilePicture"
+                                name="profilePicture"
+                                type="file"
+                                onChange={handleFieldChange}
+                                // value={formik.values.profilePicture}
+                                
+                            />
                                 
                             <br/>
                             <input
                                 className="mt-3 mx-2 "
-                                id="age"
+                                id="promise"
                                 name="age"
                                 type="checkbox"
                                 onChange={formik.handleChange}
